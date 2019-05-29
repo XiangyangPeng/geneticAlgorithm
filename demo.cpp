@@ -8,6 +8,25 @@ using namespace std;
 #define VEL 1
 //编码实例
 //编码向量:[[1,1,30],[...],...]
+
+vector<vector<float>> init_pathFromFun(float sta_x=0,float sta_y=0,float end_x=100,float end_y=100,
+int path_n=10,float gamma=1){
+    vector<vector<float>> path;
+    vector<float> point;
+    //确定函数——伽马函数 s=cr^gamma
+    float c=(end_y-sta_y)/pow(end_x-sta_x,gamma);
+    //取样生成路径点序列
+    float p_x,p_y,p_xdis=(end_x-sta_x)/path_n;
+    for(int i=0;i<=path_n;i++){
+        p_x=sta_x+i*p_xdis;
+        point.push_back(p_x);
+        point.push_back(c*pow(p_x,gamma));
+        path.push_back(point);
+        point.pop_back();point.pop_back();
+    }
+    return path;
+}
+
 float decode(vector<vector<float>>& path){
     int n=path.size();
     float path_dis=0;
@@ -34,17 +53,18 @@ float singleEvaluate(vector<vector<float>>& path,vector<vector<float>>& threat){
         dis_y=path[i+1][1]-path[i][1];
         dis_=sqrt(pow(dis_x,2)+pow(dis_y,2));
         dis_total+=dis_;
-        dis_n=(dis_-0.5)/VEL;
-        for(int i=0;i<dis_n+1;i++){
-            point.push_back(path[i][0]+i*VEL*dis_x/dis_);
-            point.push_back(path[i][1]+i*VEL*dis_y/dis_);
+        dis_n=dis_/VEL;
+        for(int j=0;j<dis_n+1;j++){
+            point.push_back(path[i][0]+j*VEL*dis_x/dis_);
+            point.push_back(path[i][1]+j*VEL*dis_y/dis_);
             depath.push_back(point);
             point.pop_back();point.pop_back();
-        }       
+        }        
     }
     point.push_back(path[n-1][0]);
     point.push_back(path[n-1][1]);
     depath.push_back(point);
+    
     //统计位于各个威胁区域内的路径点数量
     int depath_n=depath.size();
     int threat_n=threat.size();
@@ -85,8 +105,10 @@ bool singleRestrain(vector<vector<float>>& path){
     return restr;
 }
 
-int main(){
-    
+int main(){    
+    vector<vector<float>> path;
+    vector<vector<float>> threat;
+    path=init_pathFromFun();
     
     return 0;
 }
