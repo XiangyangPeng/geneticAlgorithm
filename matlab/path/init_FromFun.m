@@ -1,20 +1,35 @@
-function [pathPopu,threat]=init_FromFun(sta,des,path_n,point_n,gamma,thr_n,r,thr)
+function [pathPopu,threat]=init_FromFun(sta,des,type)
 %GammaFunction: s=cr^gamma
-
+global path_n point_n gamma thr_n r thr
 %init pathPopu
 pathPopu=zeros(path_n,point_n+1,2);
 d_gamma=gamma^(1/path_n);
-for i=path_n*(-1):path_n
-    point=[];path=zeros(point_n+1,2);
-    gamma_r=d_gamma^i;
-    c=(des(2)-sta(2))/((des(1)-sta(1))^gamma_r);
-    xdis=(des(1)-sta(1))/point_n;
-    for j=0:point_n
-        x=sta(1)+j*xdis;
-        point(1)=x;point(2)=x^gamma_r*c+sta(1);
-        path(j+1,:)=point;
+if type==1
+    for i=path_n*(-1):path_n
+        point=[];path=zeros(point_n+1,2);
+        gamma_r=d_gamma^i;
+        c=(des(2)-sta(2))/((des(1)-sta(1))^gamma_r);
+        xdis=(des(1)-sta(1))/point_n;
+        for j=0:point_n
+            x=j*xdis;
+            point(1)=x+sta(1);point(2)=x^gamma_r*c+sta(2);
+            path(j+1,:)=point;
+        end
+        pathPopu(i+path_n+1,:,:)=path;
     end
-    pathPopu(i+path_n+1,:,:)=path;
+else
+    for i=path_n*(-1):path_n
+        point=[];path=zeros(point_n+1,2);
+        gamma_r=d_gamma^i;
+        c=(des(1)-sta(1))/((des(2)-sta(2))^gamma_r);
+        ydis=(des(2)-sta(2))/point_n;
+        for j=0:point_n
+            y=j*ydis;
+            point(1)=y^gamma_r*c+sta(1);point(2)=y+sta(2);
+            path(j+1,:)=point;
+        end
+        pathPopu(i+path_n+1,:,:)=path;
+    end
 end
 
 threat=zeros(thr_n,4);

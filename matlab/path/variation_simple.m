@@ -1,5 +1,6 @@
-function NewPathPopu=variation_simple(PathPopu,p_vari,mu,sigma)
+function NewPathPopu=variation_simple(PathPopu)
 %变异如果不存在大幅改变的可能，那么算法就可能陷入局部搜索的陷阱
+global p_vari mu sigma
 [pathpopu_n,point_n,~]=size(PathPopu);
 NewPathPopu=PathPopu;
 for i=1:pathpopu_n

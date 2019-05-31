@@ -1,4 +1,15 @@
-function J=singleEvaluate(path,threat,VEL,w1,w2,w3,MAX_ANGLE,MAX_DIS)
+function [eva,bestPath,bestEva]=Evaluate(PathPopu,threat)
+%pathpopu:the population of paths
+[pathpopu_n,~,~]=size(PathPopu);
+eva=zeros(1,pathpopu_n);
+for i=1:pathpopu_n
+    eva(i)=singleEvaluate(PathPopu(i,:,:),threat);
+end
+[bestEva,bestIndex]=max(eva);bestPath=PathPopu(bestIndex,:,:);
+
+function J=singleEvaluate(path,threat)
+global VEL MAX_ANGLE MAX_DIS
+global w1 w2 w3 
 %解码并计算路径长度
 %path:1*path_n*2
 [~,path_n,xy]=size(path);
@@ -34,7 +45,7 @@ for i=1:pathdec_n
     end
 end
 for i=1:thr_n
-    threat_J(i)=threat_J(i)/threat(i,3)/2*threat(i,4);%威胁越大，该值越大-代价值
+    threat_J(i)=threat_J(i)/threat(i,3)/2*VEL*threat(i,4);%威胁越大，该值越大-代价值
 end
 %dis_J,sum(threat_J),
 J=w1*dis_J-w2*sum(threat_J);
@@ -75,9 +86,10 @@ end
 %    J=0;
 %else
     %标定
-angle_total=angle_total/(MAX_ANGLE*path_n);%惩罚项，越小越好
+angle_total=angle_total/(MAX_ANGLE*(path_n-2));%惩罚项，越小越好
 J=J-angle_total*w3+1;
 if J<0
     J=0;%J必须为正数
 end
-%end
+
+%

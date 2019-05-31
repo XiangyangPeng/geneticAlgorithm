@@ -1,4 +1,5 @@
-function NewPathPopu=merge_simple(PathPopu,p_merge)
+function NewPathPopu=merge_simple(PathPopu)
+global p_merge
 [pathpopu_n,point_n,xy]=size(PathPopu);
 NewPathPopu=PathPopu;
 count=1;temp=zeros(2,point_n,xy);j=1;
