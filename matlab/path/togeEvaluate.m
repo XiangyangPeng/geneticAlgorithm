@@ -1,12 +1,17 @@
-function [eva,bestPath,bestEva]=togeEvaluate(PathPopu,PathPopuOth,threat)
-%pathpopu:the population of paths
-%type 1-single;2-multi
-[pathpopu_n,~,~]=size(PathPopu);
-[eva,~,~]=Evaluate(PathPopu,threat);
-for i=1:pathpopu_n
-    eva(i)=coopEvaluate(PathPopu(i,:,:),PathPopuOth,eva(i));
+function [eva,newbestPath,newbestEva]=togeEvaluate(totalPopu,threat,bestPath_c)
+global plane_n path_n point_n
+[eva,~,~]=Evaluate(totalPopu,threat);
+newbestPath=zeros(plane_n,point_n+1,2);newbestEva=zeros(1,plane_n);
+for i=1:plane_n
+    ista=(i-1)*(path_n*4+2)+1;iend=i*(path_n*4+2);
+    for j=ista:iend
+        eva(j)=coopEvaluate2(totalPopu(j,:,:),i,bestPath_c,eva(j));
+    end
+    [newbestEva(i),bestIndex]=max(eva(ista:iend));
+    bestIndex=bestIndex+ista-1;
+    newbestPath(i,:,:)=totalPopu(bestIndex,:,:);
 end
-[bestEva,bestIndex]=max(eva);bestPath=PathPopu(bestIndex,:,:);
+
 
 function J=coopEvaluate(path,PathPopuOth,eva)
 global MIN_DIS_COOP plane_n w4 w5
@@ -38,6 +43,23 @@ end
 crash=crash_total/(pathPopuOth_n*pathOd_n);%碰撞指数-越小越好
 angle_coop=var(angle_in)/var(pi/plane_n:pi/plane_n:2*pi);%进入方向分离指数-越大越好
 J=eva-w4*crash+w5*angle_coop;
+if J<0
+    J=0;%J必须为正数
+end
+
+function J=coopEvaluate2(path,path_label,bestPath_c,eva)
+global plane_n w5
+[~,point_n,~]=size(path);
+angle_in=zeros(1,plane_n);
+dxy=path(1,point_n,:)-path(1,point_n-1,:);
+angle_in(1)=calAngle(dxy);
+for i=[1:path_label-1,path_label+1:plane_n]
+    %进入目标时的方向角要尽可能分离
+    dxy=bestPath_c(i,point_n,:)-bestPath_c(i,point_n-1,:);
+    angle_in(i+1)=calAngle(dxy);
+end
+angle_coop=var(angle_in)/var(pi/plane_n:pi/plane_n:2*pi);%进入方向分离指数-越大越好
+J=eva+w5*angle_coop;
 if J<0
     J=0;%J必须为正数
 end
