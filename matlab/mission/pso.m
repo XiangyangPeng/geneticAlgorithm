@@ -1,6 +1,6 @@
 %全局变量
 global pso
-pso.numberP=50;
+pso.numberP=500;
 pso.umin=0.2;
 pso.umax=0.8;
 pso.sigma=0.2;
